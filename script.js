@@ -1,21 +1,3 @@
-/*
-  Issue Explorer
-  Client-side Excel issue extraction dashboard for GitHub Pages
-
-  High-level logic:
-  1) Read workbook in the browser using SheetJS
-  2) Scan every sheet
-  3) Detect the most likely header row on each sheet
-  4) Extract rows below the header
-  5) Keep source sheet + source row
-  6) Render metrics, result cards, detail panel, sheet summaries
-  7) Support search, filtering, JSON export, and record copy
-*/
-
-/* =========================
-   1) TARGET FIELD CONFIGURATION
-   ========================= */
-
 const TARGET_FIELDS = [
   "Title",
   "Issue Summary",
@@ -29,10 +11,6 @@ const NORMALIZED_TARGET_MAP = Object.fromEntries(
   TARGET_FIELDS.map((field) => [normalizeHeader(field), field])
 );
 
-/* =========================
-   2) APP STATE
-   ========================= */
-
 const state = {
   workbookName: "",
   workbookSize: 0,
@@ -43,10 +21,6 @@ const state = {
   totalSheetsScanned: 0,
   matchedSheetsCount: 0
 };
-
-/* =========================
-   3) DOM REFERENCES
-   ========================= */
 
 const fileInput = document.getElementById("fileInput");
 const browseBtn = document.getElementById("browseBtn");
@@ -64,11 +38,6 @@ const metricMatchedSheets = document.getElementById("metricMatchedSheets");
 const metricRecordsExtracted = document.getElementById("metricRecordsExtracted");
 const metricAvgCompleteness = document.getElementById("metricAvgCompleteness");
 
-const heroSheetsScanned = document.getElementById("heroSheetsScanned");
-const heroMatchedSheets = document.getElementById("heroMatchedSheets");
-const heroRecords = document.getElementById("heroRecords");
-const heroCompleteness = document.getElementById("heroCompleteness");
-
 const recordsCountText = document.getElementById("recordsCountText");
 const resultsList = document.getElementById("resultsList");
 const detailTitle = document.getElementById("detailTitle");
@@ -79,13 +48,10 @@ const copyRecordBtn = document.getElementById("copyRecordBtn");
 const preUploadEmptyState = document.getElementById("preUploadEmptyState");
 const noMatchesEmptyState = document.getElementById("noMatchesEmptyState");
 const noFilteredResultsState = document.getElementById("noFilteredResultsState");
+const sheetSummaryPanelEmpty = document.getElementById("sheetSummaryPanelEmpty");
 
 const sheetSummaryList = document.getElementById("sheetSummaryList");
 const sheetSummaryCount = document.getElementById("sheetSummaryCount");
-
-/* =========================
-   4) EVENT WIRING
-   ========================= */
 
 browseBtn.addEventListener("click", () => fileInput.click());
 
@@ -139,19 +105,6 @@ resetFiltersBtn.addEventListener("click", () => {
 exportJsonBtn.addEventListener("click", exportFilteredResultsAsJson);
 copyRecordBtn.addEventListener("click", copySelectedRecord);
 
-/* =========================
-   5) NORMALIZATION HELPERS
-   ========================= */
-
-/*
-  Header normalization rule requested by user:
-  - lowercase
-  - remove non-alphanumeric characters
-  This makes:
-  "Root Cause" -> "rootcause"
-  "ROOT_CAUSE" -> "rootcause"
-  "Root-Cause" -> "rootcause"
-*/
 function normalizeHeader(value) {
   return String(value ?? "")
     .toLowerCase()
@@ -182,10 +135,6 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 }
-
-/* =========================
-   6) FILE HANDLING
-   ========================= */
 
 async function handleWorkbookFile(file) {
   const supportedExtensions = [".xlsx", ".xls", ".xlsm", ".csv"];
@@ -225,10 +174,6 @@ function setStatus(message, type = "default") {
   statusMessage.dataset.type = type;
 }
 
-/* =========================
-   7) WORKBOOK PARSING
-   ========================= */
-
 function parseWorkbook(workbook) {
   resetDataState(false);
 
@@ -241,7 +186,6 @@ function parseWorkbook(workbook) {
   sheetNames.forEach((sheetName) => {
     const worksheet = workbook.Sheets[sheetName];
 
-    // header: 1 returns a raw 2D array of rows
     const rows = XLSX.utils.sheet_to_json(worksheet, {
       header: 1,
       defval: "",
@@ -267,12 +211,6 @@ function parseWorkbook(workbook) {
   applyFiltersAndRender();
 }
 
-/*
-  Analyze one sheet:
-  - inspect each row as a possible header row
-  - a row is a candidate only if at least 3 target fields match
-  - best row = highest number of matches
-*/
 function analyzeSheet(sheetName, rows) {
   let bestHeaderRowIndex = -1;
   let bestMatchCount = 0;
@@ -287,7 +225,6 @@ function analyzeSheet(sheetName, rows) {
       const normalized = normalizeHeader(cellValue);
       const matchedTarget = NORMALIZED_TARGET_MAP[normalized];
 
-      // Only map the first occurrence of a matched target field
       if (matchedTarget && !(matchedTarget in columnMap)) {
         columnMap[matchedTarget] = colIndex;
         matchedFields.push(matchedTarget);
@@ -330,7 +267,7 @@ function analyzeSheet(sheetName, rows) {
     sheetName,
     matched: true,
     fullyMatched,
-    headerRowNumber: bestHeaderRowIndex + 1, // human-friendly row number
+    headerRowNumber: bestHeaderRowIndex + 1,
     matchedFields: bestMatchedFields,
     missingFields,
     extractedRowCount: records.length,
@@ -356,7 +293,6 @@ function extractRecordsFromSheet({ rows, sheetName, headerRowIndex, columnMap })
       record[field] = value || "Not found";
     });
 
-    // Skip rows where all target fields are empty in the original sheet
     const allFieldsEmpty = TARGET_FIELDS.every((field) => {
       const colIndex = columnMap[field];
       if (colIndex === undefined) return true;
@@ -380,11 +316,6 @@ function calculateCompleteness(record) {
   return Math.round((foundCount / TARGET_FIELDS.length) * 100);
 }
 
-/*
-  Card title and summary rules requested by user:
-  - Use "Untitled issue" if Title is missing
-  - Use issue summary, observations, root cause, or actions taken as fallback summary text
-*/
 function getCardTitle(record) {
   return record["Title"] === "Not found" ? "Untitled issue" : record["Title"];
 }
@@ -406,17 +337,12 @@ function getCardSummaryText(record) {
   return "No summary text available for this record.";
 }
 
-/* =========================
-   8) FILTERING
-   ========================= */
-
 function applyFiltersAndRender() {
   const query = searchInput.value.trim().toLowerCase();
   const selectedSheet = sheetFilter.value;
 
   state.filteredRecords = state.allRecords.filter((record) => {
     const matchesSheet = selectedSheet === "all" || record.sourceSheet === selectedSheet;
-
     if (!matchesSheet) return false;
 
     if (!query) return true;
@@ -442,10 +368,6 @@ function applyFiltersAndRender() {
   renderAll();
 }
 
-/* =========================
-   9) RENDERING
-   ========================= */
-
 function renderAll() {
   renderMetrics();
   renderRecordCount();
@@ -463,11 +385,6 @@ function renderMetrics() {
   metricMatchedSheets.textContent = String(state.matchedSheetsCount);
   metricRecordsExtracted.textContent = String(state.allRecords.length);
   metricAvgCompleteness.textContent = `${avgCompleteness}%`;
-
-  heroSheetsScanned.textContent = String(state.totalSheetsScanned);
-  heroMatchedSheets.textContent = String(state.matchedSheetsCount);
-  heroRecords.textContent = String(state.allRecords.length);
-  heroCompleteness.textContent = `${avgCompleteness}%`;
 }
 
 function calculateAverageCompleteness(records) {
@@ -513,7 +430,7 @@ function renderResults() {
       </div>
 
       <h3 class="result-title">${escapeHtml(getCardTitle(record))}</h3>
-      <p class="result-summary">${escapeHtml(truncateText(record.summaryText, 220))}</p>
+      <p class="result-summary">${escapeHtml(truncateText(record.summaryText, 210))}</p>
 
       <div class="result-meta">
         <span class="sheet-chip">${record["Root Cause"] !== "Not found" ? "Root Cause found" : "Root Cause missing"}</span>
@@ -582,6 +499,8 @@ function renderSheetSummaries() {
   sheetSummaryCount.textContent = `${matchedSheets.length} matched sheet${matchedSheets.length === 1 ? "" : "s"}`;
   sheetSummaryList.innerHTML = "";
 
+  sheetSummaryPanelEmpty.classList.toggle("hidden", matchedSheets.length > 0);
+
   matchedSheets.forEach((sheet) => {
     const statusText = sheet.fullyMatched ? "Full match" : "Partial match";
 
@@ -635,10 +554,6 @@ function populateSheetFilterOptions() {
     sheetFilter.value = "all";
   }
 }
-
-/* =========================
-   10) EXPORT + COPY
-   ========================= */
 
 function exportFilteredResultsAsJson() {
   if (!state.filteredRecords.length) return;
@@ -703,10 +618,6 @@ async function copySelectedRecord() {
   }
 }
 
-/* =========================
-   11) UTILITIES
-   ========================= */
-
 function truncateText(text, maxLength) {
   if (!text || text.length <= maxLength) return text;
   return `${text.slice(0, maxLength).trim()}...`;
@@ -726,10 +637,6 @@ function resetDataState(clearMeta = true) {
     fileMeta.textContent = "";
   }
 }
-
-/* =========================
-   12) REVEAL ANIMATIONS
-   ========================= */
 
 function setupRevealAnimations() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -754,10 +661,6 @@ function setupRevealAnimations() {
 
   revealElements.forEach((el) => observer.observe(el));
 }
-
-/* =========================
-   13) INITIALIZE
-   ========================= */
 
 function initialize() {
   setupRevealAnimations();
