@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- SheetJS for browser-based Excel parsing -->
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script defer src="script.js"></script>
 </head>
@@ -27,95 +26,35 @@
       <div class="brand">
         <div class="brand-mark">IE</div>
         <div>
-          <p class="eyebrow">Static GitHub Pages Project</p>
+          <p class="eyebrow">Excel Issue Extraction Dashboard</p>
           <h1 class="brand-title">Issue Explorer</h1>
         </div>
       </div>
-      <a class="ghost-link" href="#github-guide">GitHub Pages Guide</a>
     </div>
   </header>
 
   <main>
-    <section class="hero section">
-      <div class="container hero-grid">
-        <div class="hero-copy reveal">
-          <p class="eyebrow">Excel issue extraction without a backend</p>
-          <h2>Upload a workbook. Scan every sheet. Surface clean issue records.</h2>
-          <p class="hero-text">
-            This dashboard reads Excel files directly in the browser, finds likely issue tables even when the header row is buried under blank rows,
-            extracts the target fields, and turns the results into a searchable, filterable explorer.
-          </p>
-
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#uploader">Start with your workbook</a>
-            <a class="btn btn-secondary" href="#workflow">See how it works</a>
-          </div>
-
-          <div class="hero-badges">
-            <span class="badge">Static site</span>
-            <span class="badge">GitHub Pages ready</span>
-            <span class="badge">Client-side only</span>
-            <span class="badge">No backend</span>
-          </div>
-        </div>
-
-        <div class="hero-panel glass reveal">
-          <div class="panel-topline">
-            <span class="pill">Dashboard preview</span>
-            <span class="muted">Neutral. Professional. Not another neon toy.</span>
-          </div>
-
-          <div class="mini-metrics">
-            <div class="mini-card">
-              <p class="mini-label">Sheets scanned</p>
-              <p class="mini-value" id="heroSheetsScanned">0</p>
-            </div>
-            <div class="mini-card">
-              <p class="mini-label">Matched sheets</p>
-              <p class="mini-value" id="heroMatchedSheets">0</p>
-            </div>
-            <div class="mini-card">
-              <p class="mini-label">Records extracted</p>
-              <p class="mini-value" id="heroRecords">0</p>
-            </div>
-            <div class="mini-card">
-              <p class="mini-label">Avg completeness</p>
-              <p class="mini-value" id="heroCompleteness">0%</p>
-            </div>
-          </div>
-
-          <div class="preview-stack">
-            <article class="preview-card">
-              <p class="preview-kicker">Example result card</p>
-              <h3>Door misalignment on final assembly</h3>
-              <p class="preview-text">
-                Summary preview comes from Issue Summary, Observations, Root Cause, or Actions Taken when Title is incomplete.
-              </p>
-            </article>
-
-            <article class="preview-card subdued">
-              <p class="preview-kicker">Example sheet summary</p>
-              <p><strong>Sheet:</strong> NC Log - Line 4</p>
-              <p><strong>Header row:</strong> 7</p>
-              <p><strong>Status:</strong> Partial match</p>
-              <p><strong>Matched fields:</strong> Title, Observations, Root Cause, Preventive Action</p>
-            </article>
-          </div>
-        </div>
+    <section class="hero compact-hero section">
+      <div class="container hero-simple reveal">
+        <p class="eyebrow">Client-side workbook analysis</p>
+        <h2>Upload an Excel workbook and review extracted issue records across all sheets.</h2>
+        <p class="hero-text narrow">
+          The parser scans every sheet, detects the most likely issue-table header row, extracts the target fields, and presents the results in a clean searchable dashboard.
+        </p>
       </div>
     </section>
 
     <section id="uploader" class="section">
       <div class="container">
         <div class="section-heading reveal">
-          <p class="eyebrow">Step 1</p>
-          <h2>Upload a workbook</h2>
+          <p class="eyebrow">Upload Workbook</p>
+          <h2>Load your file</h2>
           <p class="section-text">
-            Drag and drop an Excel file, or use the file picker. Everything is processed in your browser.
+            Drag and drop an Excel file, or use the file picker. Everything is processed directly in the browser.
           </p>
         </div>
 
-        <div class="upload-layout">
+        <div class="upload-layout single-column">
           <div class="upload-card glass reveal">
             <div
               id="dropZone"
@@ -135,7 +74,7 @@
                 <h3>Drop Excel file here</h3>
                 <p>Supports .xlsx, .xls, .xlsm, and .csv</p>
                 <button id="browseBtn" class="btn btn-primary" type="button">Choose file</button>
-                <p class="microcopy">No upload to a server. No database. No backend. Just browser-side parsing.</p>
+                <p class="microcopy">No backend, no server, no database. The workbook is processed entirely in the browser.</p>
               </div>
             </div>
 
@@ -144,17 +83,50 @@
               <p id="fileMeta" class="file-meta"></p>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <aside class="tips-card reveal">
-            <p class="eyebrow">What this parser expects</p>
-            <ul class="tip-list">
-              <li>It scans <strong>every sheet</strong>, not just the first one.</li>
-              <li>A row becomes a header candidate if it matches <strong>at least 3 target fields</strong>.</li>
-              <li>Column names are matched <strong>case-insensitively</strong>.</li>
-              <li>Spaces, underscores, and punctuation differences are ignored.</li>
-              <li>Rows with all six fields empty are skipped.</li>
-            </ul>
-          </aside>
+    <section id="workflow" class="section workflow-section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Workflow</p>
+          <h2>How the parser works</h2>
+          <p class="section-text">
+            A simple four-step flow so the interface explains itself instead of making people guess.
+          </p>
+        </div>
+
+        <div class="workflow-strip reveal">
+          <article class="workflow-node glass">
+            <div class="workflow-icon">1</div>
+            <h3>Upload Workbook</h3>
+            <p>Select or drop an Excel file in the browser.</p>
+          </article>
+
+          <div class="workflow-connector" aria-hidden="true"></div>
+
+          <article class="workflow-node glass">
+            <div class="workflow-icon">2</div>
+            <h3>Detect Headers</h3>
+            <p>Find the best matching issue header row on each sheet.</p>
+          </article>
+
+          <div class="workflow-connector" aria-hidden="true"></div>
+
+          <article class="workflow-node glass">
+            <div class="workflow-icon">3</div>
+            <h3>Extract Records</h3>
+            <p>Pull target fields with sheet name and row number.</p>
+          </article>
+
+          <div class="workflow-connector" aria-hidden="true"></div>
+
+          <article class="workflow-node glass">
+            <div class="workflow-icon">4</div>
+            <h3>Review Results</h3>
+            <p>Search, filter, inspect details, and export JSON.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -162,10 +134,10 @@
     <section id="dashboard" class="section">
       <div class="container">
         <div class="section-heading reveal">
-          <p class="eyebrow">Step 2</p>
+          <p class="eyebrow">Dashboard</p>
           <h2>Explore extracted issue records</h2>
           <p class="section-text">
-            Search across every extracted field, filter by sheet, inspect details, and export the currently filtered results as JSON.
+            Search across fields, filter by sheet, inspect details, and review sheet-level extraction summaries.
           </p>
         </div>
 
@@ -197,19 +169,19 @@
 
         <div class="metrics-grid reveal" id="metricsGrid">
           <article class="metric-card glass">
-            <p class="metric-label">Total sheets scanned</p>
+            <p class="metric-label">Sheets scanned</p>
             <p class="metric-value" id="metricSheetsScanned">0</p>
           </article>
           <article class="metric-card glass">
-            <p class="metric-label">Total matched sheets</p>
+            <p class="metric-label">Matched sheets</p>
             <p class="metric-value" id="metricMatchedSheets">0</p>
           </article>
           <article class="metric-card glass">
-            <p class="metric-label">Total records extracted</p>
+            <p class="metric-label">Records extracted</p>
             <p class="metric-value" id="metricRecordsExtracted">0</p>
           </article>
           <article class="metric-card glass">
-            <p class="metric-label">Average completeness</p>
+            <p class="metric-label">Avg completeness</p>
             <p class="metric-value" id="metricAvgCompleteness">0%</p>
           </article>
         </div>
@@ -218,37 +190,61 @@
           <p id="recordsCountText">No records yet.</p>
         </div>
 
-        <div class="dashboard-grid">
-          <section class="results-panel">
+        <div class="dashboard-grid dashboard-grid-3">
+          <section class="column-panel">
+            <div class="panel-heading reveal">
+              <p class="eyebrow">Sheets</p>
+              <h3>Matched sheet summaries</h3>
+            </div>
+
+            <div id="sheetSummaryPanelEmpty" class="empty-state glass reveal">
+              <p class="eyebrow">No sheet summaries yet</p>
+              <h3>Matched sheets will appear here</h3>
+              <p>Once a workbook is parsed, each matched sheet will show its header row, extracted row count, and matched or missing fields.</p>
+            </div>
+
+            <section class="sheet-summary-panel glass reveal">
+              <div class="panel-title-row">
+                <p class="eyebrow">Sheet-level summaries</p>
+                <span id="sheetSummaryCount" class="muted">0 matched sheets</span>
+              </div>
+              <div id="sheetSummaryList" class="sheet-summary-list"></div>
+            </section>
+          </section>
+
+          <section class="column-panel">
+            <div class="panel-heading reveal">
+              <p class="eyebrow">Results</p>
+              <h3>Extracted issue records</h3>
+            </div>
+
             <div id="preUploadEmptyState" class="empty-state glass reveal">
               <p class="eyebrow">Before upload</p>
               <h3>No workbook loaded yet</h3>
-              <p>
-                Upload an Excel file above to scan sheets, detect issue tables, and populate the dashboard.
-              </p>
+              <p>Upload an Excel file to scan sheets, detect issue tables, and populate the results list.</p>
             </div>
 
             <div id="noMatchesEmptyState" class="empty-state glass hidden">
               <p class="eyebrow">No matching sheets found</p>
               <h3>Nothing met the header threshold</h3>
-              <p>
-                This parser looks for a header row that matches at least 3 of the target fields after normalization.
-                Try checking the workbook structure or field names.
-              </p>
+              <p>This parser looks for a header row that matches at least 3 target fields after normalization.</p>
             </div>
 
             <div id="noFilteredResultsState" class="empty-state glass hidden">
               <p class="eyebrow">No records match the current filters</p>
-              <h3>Your filters are too strict</h3>
-              <p>
-                Clear the search term or switch the sheet filter to widen the result set.
-              </p>
+              <h3>No visible results</h3>
+              <p>Clear the search term or switch the sheet filter to widen the result set.</p>
             </div>
 
             <div id="resultsList" class="results-list"></div>
           </section>
 
-          <aside class="detail-column">
+          <aside class="column-panel detail-column">
+            <div class="panel-heading reveal">
+              <p class="eyebrow">Selected Record</p>
+              <h3>Issue details</h3>
+            </div>
+
             <div class="detail-sticky">
               <section class="detail-panel glass reveal">
                 <div class="detail-head">
@@ -265,93 +261,12 @@
 
                 <div id="detailFields" class="detail-fields">
                   <div class="placeholder-detail">
-                    Click any result card to see all six fields, source sheet, source row, completeness, and extracted values.
+                    Click any result card to see all extracted fields, source sheet, source row, and completeness.
                   </div>
                 </div>
               </section>
-
-              <section class="sheet-summary-panel glass reveal">
-                <div class="panel-title-row">
-                  <p class="eyebrow">Sheet-level summaries</p>
-                  <span id="sheetSummaryCount" class="muted">0 matched sheets</span>
-                </div>
-                <div id="sheetSummaryList" class="sheet-summary-list"></div>
-              </section>
             </div>
           </aside>
-        </div>
-      </div>
-    </section>
-
-    <section id="workflow" class="section workflow-section">
-      <div class="container">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Step 3</p>
-          <h2>How the workflow moves</h2>
-          <p class="section-text">
-            This is the visual explanation section you asked for. Three stages. No mystical AI smoke machine nonsense.
-          </p>
-        </div>
-
-        <div class="workflow-grid">
-          <article class="workflow-card glass reveal">
-            <span class="workflow-step">01</span>
-            <h3>Scan workbook</h3>
-            <p>
-              The browser reads the uploaded workbook and inspects every sheet independently. Blank rows above the table are fine.
-            </p>
-          </article>
-
-          <article class="workflow-card glass reveal">
-            <span class="workflow-step">02</span>
-            <h3>Match headers</h3>
-            <p>
-              Candidate header rows are scored based on how many normalized target fields they match. The best row on each sheet wins.
-            </p>
-          </article>
-
-          <article class="workflow-card glass reveal">
-            <span class="workflow-step">03</span>
-            <h3>Surface clean records</h3>
-            <p>
-              Rows below the chosen header are extracted into structured issue records, then exposed in a searchable dashboard with details and export.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="github-guide" class="section">
-      <div class="container">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Publish online</p>
-          <h2>GitHub Pages setup guide</h2>
-          <p class="section-text">
-            Since you want this entirely online, this section exists so future-you doesn’t forget the clicks and then act betrayed by a settings menu.
-          </p>
-        </div>
-
-        <div class="guide-grid">
-          <article class="guide-card glass reveal">
-            <h3>Easiest upload method</h3>
-            <ol>
-              <li>Create a new public GitHub repository.</li>
-              <li>Add <code>index.html</code>, <code>styles.css</code>, <code>script.js</code>, and <code>README.md</code>.</li>
-              <li>Open <strong>Settings</strong> in the repo.</li>
-              <li>Go to <strong>Pages</strong>.</li>
-              <li>Under <strong>Build and deployment</strong>, choose <strong>Deploy from a branch</strong>.</li>
-              <li>Select the <strong>main</strong> branch and the root folder.</li>
-              <li>Save, then wait for GitHub to publish the site.</li>
-            </ol>
-          </article>
-
-          <article class="guide-card glass reveal">
-            <h3>What the live URL looks like</h3>
-            <p>Your site will usually be published at:</p>
-            <pre><code>https://YOUR-USERNAME.github.io/REPOSITORY-NAME/</code></pre>
-            <p>Example:</p>
-            <pre><code>https://johndoe.github.io/issue-explorer/</code></pre>
-          </article>
         </div>
       </div>
     </section>
@@ -359,7 +274,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>Issue Explorer. Static, browser-based, and stubbornly free of backend drama.</p>
+      <p>Issue Explorer</p>
     </div>
   </footer>
 </body>
